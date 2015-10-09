@@ -6,11 +6,16 @@ provisioner:
   name: chef_zero
 
 platforms:
-  - name: ubuntu-12.04
   - name: centos-6.5
 
 suites:
   - name: default
     run_list:
-      - recipe[chef_portal::default]
+      - recipe[chef_portal::fundamentals_3x]
     attributes:
+      ec2:
+        iam:
+          security-credentials:
+            provisioner:
+              AccessKeyId: 'ACCESS KEY'
+              SecretAccessKey: 'SECRET ACCESS KEY'
