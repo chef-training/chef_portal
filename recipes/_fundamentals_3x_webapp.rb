@@ -101,7 +101,7 @@ execute 'bundle install' do
   })
 end
 
-execute 'rackup -D -p 8081' do
+execute 'rackup -D -o 0.0.0.0 -p 8081' do
   cwd '/root/portal_site'
   environment({
     "GEM_HOME"=>"/root/.chefdk/gem/ruby/2.1.0",
