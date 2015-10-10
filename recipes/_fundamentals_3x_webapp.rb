@@ -30,26 +30,82 @@ end
 
 package 'httpd'
 
+file '/etc/httpd/conf.d/welcome.conf' do
+  action :delete
+  notifies :restart, "service[httpd]"
+end
+
+# Write out a new HTTPD configuration that lets routes traffic to localhost:8080
+template '/etc/httpd/conf.d/portal_site.conf' do
+  source 'portal_site.conf.erb'
+  notifies :restart, "service[httpd]"
+end
+
 service 'httpd' do
   supports :status => true, :restart => true, :reload => true
   action [:start, :enable]
 end
 
-template '/var/www/html/index.html' do
-  source 'webapp/index.html.erb'
+workstation_nodes = search('node','tags:workstation').map do |w_node|
+  { 'ipaddress' => w_node['ec2']['public_ipv4'],
+    'platform_family' => w_node['platform_family'] }
+end
+
+
+additional_nodes = 1.upto(3).map do |workstation_index|
+  nodes = search('class_machines',"tags:node#{workstation_index}").map do |n_node|
+    { 'ipaddress' => n_node['ec2']['public_ipv4'],
+      'platform_family' => n_node['platform_family'] }
+  end
+  { "node#{workstation_index}" => nodes }
+end
+
+chefserver_nodes = search('node', 'tags:chefserver').map do |s_node|
+  { 'ipaddress' => s_node['ec2']['public_ipv4'],
+    'platform_family' => s_node['platform_family'] }
+end
+
+node_export = {
+  :key => "/root/.ssh/#{node['chef_classroom']['class_name']}-portal_key",
+  :workstations => workstation_nodes,
+  :nodes => additional_nodes,
+  :chefserver => chefserver_nodes
+}
+
+template '/root/chef_classroom/nodes.yml' do
+  source 'webapp/nodes.yml.erb'
   mode '0644'
-  variables(
-    lazy do
-      {
-        :key => "/root/.ssh/#{node['chef_classroom']['class_name']}-portal_key",
-        :workstations => search('node', 'tags:workstation'),
-        :node1s => search('class_machines', 'tags:node1'),
-        :node2s => search('class_machines', 'tags:node2'),
-        :node3s => search('class_machines', 'tags:node3'),
-        :chefserver => search('node', 'tags:chefserver')
-      }
-    end
-  )
+  variables :export => node_export
+end
+
+#
+# Deploy the website
+#
+git '/root/portal_site' do
+  repository 'git://github.com/burtlo/portal_site.git'
+  revision 'master'
+  action :sync
+  # notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
+end
+
+execute 'bundle install' do
+  cwd '/root/portal_site'
+  environment({
+    "GEM_HOME"=>"/root/.chefdk/gem/ruby/2.1.0",
+    "GEM_PATH"=>"/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "GEM_ROOT"=>"/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "PATH"=> "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
+  })
+end
+
+execute 'rackup -D -p 8081' do
+  cwd '/root/portal_site'
+  environment({
+    "GEM_HOME"=>"/root/.chefdk/gem/ruby/2.1.0",
+    "GEM_PATH"=>"/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "GEM_ROOT"=>"/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "PATH"=> "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
+  })
 end
 
 # lazy create the guacamole user map and monkeypatch it
