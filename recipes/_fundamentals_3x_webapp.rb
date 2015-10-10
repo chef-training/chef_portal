@@ -46,38 +46,6 @@ service 'httpd' do
   action [:start, :enable]
 end
 
-workstation_nodes = search('node','tags:workstation').map do |w_node|
-  { 'ipaddress' => w_node['ec2']['public_ipv4'],
-    'platform_family' => w_node['platform_family'] }
-end
-
-
-additional_nodes = 1.upto(3).map do |workstation_index|
-  nodes = search('class_machines',"tags:node#{workstation_index}").map do |n_node|
-    { 'ipaddress' => n_node['ec2']['public_ipv4'],
-      'platform_family' => n_node['platform_family'] }
-  end
-  { "node#{workstation_index}" => nodes }
-end
-
-chefserver_nodes = search('node', 'tags:chefserver').map do |s_node|
-  { 'ipaddress' => s_node['ec2']['public_ipv4'],
-    'platform_family' => s_node['platform_family'] }
-end
-
-node_export = {
-  :key => "/root/.ssh/#{node['chef_classroom']['class_name']}-portal_key",
-  :workstations => workstation_nodes,
-  :nodes => additional_nodes,
-  :chefserver => chefserver_nodes
-}
-
-template '/root/chef_classroom/nodes.yml' do
-  source 'webapp/nodes.yml.erb'
-  mode '0644'
-  variables :export => node_export
-end
-
 #
 # Deploy the website
 #
@@ -86,6 +54,41 @@ git '/root/portal_site' do
   revision 'master'
   action :sync
   # notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
+end
+
+
+workstation_nodes = search('node','tags:workstation').map do |w_node|
+  { :ipaddress => w_node['ec2']['public_ipv4'],
+    :platform_family => w_node['platform_family'] }
+end
+
+
+additional_nodes = 1.upto(3).map do |workstation_index|
+  nodes = search('class_machines',"tags:node#{workstation_index}").map do |n_node|
+    { :ipaddress => n_node['ec2']['public_ipv4'],
+      :platform_family => n_node['platform_family'] }
+  end
+  { :label => "node#{workstation_index}", :nodes => nodes }
+end
+
+chefserver_nodes = search('node', 'tags:chefserver').map do |s_node|
+  { :ipaddress => s_node['ec2']['public_ipv4'],
+    :platform_family => s_node['platform_family'] }
+end
+
+node_export = {
+  :class_name => node['chef_classroom']['class_name'],
+  :console_address => "http://#{node['ec2']['public_ipv4']}:8080/guacamole",
+  :key => "/root/.ssh/#{node['chef_classroom']['class_name']}-portal_key",
+  :workstations => workstation_nodes,
+  :nodes => additional_nodes,
+  :chefserver => chefserver_nodes
+}
+
+template '/root/portal_site/nodes.yml' do
+  source 'webapp/nodes.yml.erb'
+  mode '0644'
+  variables :export => node_export
 end
 
 execute 'bundle install' do
@@ -107,6 +110,7 @@ execute 'rackup -D -p 8081' do
     "PATH"=> "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
   })
 end
+
 
 # lazy create the guacamole user map and monkeypatch it
 # search returns nil during compilation
