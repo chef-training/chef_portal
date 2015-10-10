@@ -1,3 +1,7 @@
 {
-  "tags": [ "node1" ]
+  "tags": [ "node1" ],
+  "ec2" : {
+    "public_ipv4" : "PUBLIC_IPV4"
+  },
+  "platform_family" : "centos"
 }
