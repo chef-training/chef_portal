@@ -28,8 +28,7 @@ service 'iptables' do
   action [:disable, :stop]
 end
 
-# NOTE: This is dirty and does not work
-execute 'togglesebool httpd_can_network_connect'
+execute 'setsebool -P httpd_can_network_connect on'
 
 package 'httpd'
 
