@@ -28,6 +28,9 @@ service 'iptables' do
   action [:disable, :stop]
 end
 
+# NOTE: This is dirty and does not work
+execute 'togglesebool httpd_can_network_connect'
+
 package 'httpd'
 
 file '/etc/httpd/conf.d/welcome.conf' do
@@ -56,39 +59,12 @@ git '/root/portal_site' do
   # notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
 end
 
-
-workstation_nodes = search('node','tags:workstation').map do |w_node|
-  { :ipaddress => w_node['ec2']['public_ipv4'],
-    :platform_family => w_node['platform_family'] }
-end
-
-
-additional_nodes = 1.upto(3).map do |workstation_index|
-  nodes = search('class_machines',"tags:node#{workstation_index}").map do |n_node|
-    { :ipaddress => n_node['ec2']['public_ipv4'],
-      :platform_family => n_node['platform_family'] }
-  end
-  { :label => "node#{workstation_index}", :nodes => nodes }
-end
-
-chefserver_nodes = search('node', 'tags:chefserver').map do |s_node|
-  { :ipaddress => s_node['ec2']['public_ipv4'],
-    :platform_family => s_node['platform_family'] }
-end
-
-node_export = {
-  :class_name => node['chef_classroom']['class_name'],
-  :console_address => "http://#{node['ec2']['public_ipv4']}:8080/guacamole",
-  :key => "/root/.ssh/#{node['chef_classroom']['class_name']}-portal_key",
-  :workstations => workstation_nodes,
-  :nodes => additional_nodes,
-  :chefserver => chefserver_nodes
-}
+current_node_export = node_export
 
 template '/root/portal_site/nodes.yml' do
   source 'webapp/nodes.yml.erb'
   mode '0644'
-  variables :export => node_export
+  variables :export => current_node_export
 end
 
 execute 'bundle install' do
@@ -100,6 +76,12 @@ execute 'bundle install' do
     "PATH"=> "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
   })
 end
+
+#
+# TODO: This creates a problem on multiple executions. As these processes are
+# simply going to pile up. I will need to come up with the right guard clause
+# and that will problem require me to write a pid file and check for it.
+#
 
 execute 'rackup -D -o 0.0.0.0 -p 8081' do
   cwd '/root/portal_site'
@@ -117,6 +99,7 @@ end
 include_recipe 'guacamole'
 
 chef_gem 'chef-rewind'
+# This FAILS with ChefSpec
 require 'chef/rewind'
 
 rewind 'template[/etc/guacamole/user-mapping.xml]' do
