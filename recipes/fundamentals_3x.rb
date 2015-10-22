@@ -36,7 +36,7 @@ execute 'berks_vendor_cookbooks' do
 end
 
 git '/root/chef_classroom' do
-  repository 'git://github.com/burtlo/chef_classroom.git'
+  repository 'git://github.com/gmiranda23/chef_classroom.git'
   revision 'master'
   action :sync
   notifies :run, 'execute[berks_vendor_cookbooks]', :immediately

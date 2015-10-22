@@ -52,7 +52,7 @@ end
 # Deploy the website
 #
 git '/root/portal_site' do
-  repository 'git://github.com/burtlo/portal_site.git'
+  repository 'git://github.com/chef-training/portal_site.git'
   revision 'master'
   action :sync
   # notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
