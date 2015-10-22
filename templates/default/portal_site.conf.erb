@@ -1,0 +1,17 @@
+NameVirtualHost *:80
+
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+
+<Proxy *>
+  Order deny,allow
+  Allow from all
+</Proxy>
+
+<VirtualHost *:80>
+  ProxyRequests Off
+  RewriteEngine On
+  ProxyPreserveHost On
+  ProxyPass / http://localhost:8081/
+  ProxyPassReverse / http://localhost:8081/
+</VirtualHost>

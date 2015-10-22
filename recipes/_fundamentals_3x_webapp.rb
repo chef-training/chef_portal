@@ -28,35 +28,77 @@ service 'iptables' do
   action [:disable, :stop]
 end
 
+execute 'setsebool -P httpd_can_network_connect on'
+
 package 'httpd'
+
+file '/etc/httpd/conf.d/welcome.conf' do
+  action :delete
+  notifies :restart, "service[httpd]"
+end
+
+# Write out a new HTTPD configuration that lets routes traffic to localhost:8080
+template '/etc/httpd/conf.d/portal_site.conf' do
+  source 'portal_site.conf.erb'
+  notifies :restart, "service[httpd]"
+end
 
 service 'httpd' do
   supports :status => true, :restart => true, :reload => true
   action [:start, :enable]
 end
 
-template '/var/www/html/index.html' do
-  source 'webapp/index.html.erb'
-  mode '0644'
-  variables(
-    lazy do
-      {
-        :key => "/root/.ssh/#{node['chef_classroom']['class_name']}-portal_key",
-        :workstations => search('node', 'tags:workstation'),
-        :node1s => search('class_machines', 'tags:node1'),
-        :node2s => search('class_machines', 'tags:node2'),
-        :node3s => search('class_machines', 'tags:node3'),
-        :chefserver => search('node', 'tags:chefserver')
-      }
-    end
-  )
+#
+# Deploy the website
+#
+git '/root/portal_site' do
+  repository 'git://github.com/chef-training/portal_site.git'
+  revision 'master'
+  action :sync
+  # notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
 end
+
+current_node_export = node_export
+
+template '/root/portal_site/nodes.yml' do
+  source 'webapp/nodes.yml.erb'
+  mode '0644'
+  variables :export => current_node_export
+end
+
+execute 'bundle install' do
+  cwd '/root/portal_site'
+  environment({
+    "GEM_HOME"=>"/root/.chefdk/gem/ruby/2.1.0",
+    "GEM_PATH"=>"/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "GEM_ROOT"=>"/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "PATH"=> "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
+  })
+end
+
+#
+# TODO: This creates a problem on multiple executions. As these processes are
+# simply going to pile up. I will need to come up with the right guard clause
+# and that will problem require me to write a pid file and check for it.
+#
+
+execute 'rackup -D -o 0.0.0.0 -p 8081' do
+  cwd '/root/portal_site'
+  environment({
+    "GEM_HOME"=>"/root/.chefdk/gem/ruby/2.1.0",
+    "GEM_PATH"=>"/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "GEM_ROOT"=>"/opt/chefdk/embedded/lib/ruby/gems/2.1.0",
+    "PATH"=> "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
+  })
+end
+
 
 # lazy create the guacamole user map and monkeypatch it
 # search returns nil during compilation
 include_recipe 'guacamole'
 
 chef_gem 'chef-rewind'
+# This FAILS with ChefSpec
 require 'chef/rewind'
 
 rewind 'template[/etc/guacamole/user-mapping.xml]' do

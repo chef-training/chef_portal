@@ -42,6 +42,25 @@ git '/root/chef_classroom' do
   notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
 end
 
+# NOTE: Another option is to add this directory with a .gitkeep in classroom cookbook
+directory '/root/chef_classroom/roles'
+
+class_attributes_overrides = {
+  name: "class",
+  default_attributes: {
+    chef_classroom: {
+      class_name: node['chef_classroom']['class_name'],
+      number_of_students: node['chef_classroom']['number_of_students'],
+      ip_range: node['chef_classroom']['ip_range'],
+      iam_instance_profile: node['chef_classroom']['iam_instance_profile']
+    }
+  }
+}
+
+file '/root/chef_classroom/roles/class.json' do
+  content class_attributes_overrides.to_json
+end
+
 # Setup the web portal interface for fundamentals_3x
 include_recipe 'chef_portal::_fundamentals_3x_webapp'
 

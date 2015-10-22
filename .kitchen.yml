@@ -4,13 +4,19 @@ driver:
 
 provisioner:
   name: chef_zero
+  data_bags_path: "test/integration/data_bags"
 
 platforms:
-  - name: ubuntu-12.04
   - name: centos-6.5
 
 suites:
   - name: default
     run_list:
-      - recipe[chef_portal::default]
+      - recipe[chef_portal::fundamentals_3x]
     attributes:
+      ec2:
+        iam:
+          security-credentials:
+            provisioner:
+              AccessKeyId: 'ACCESS KEY'
+              SecretAccessKey: 'SECRET ACCESS KEY'
