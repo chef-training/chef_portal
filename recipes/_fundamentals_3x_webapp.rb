@@ -63,7 +63,11 @@ current_node_export = node_export
 template '/root/portal_site/nodes.yml' do
   source 'webapp/nodes.yml.erb'
   mode '0644'
-  variables :export => current_node_export
+  variables(
+    lazy do
+      { :export => current_node_export }
+    end
+  )
 end
 
 execute 'bundle install' do
