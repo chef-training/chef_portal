@@ -46,7 +46,8 @@ directory '/root/.aws' do
   mode '0700'
 end
 
-iam_role_name = node['chef_classroom']['iam_instance_profile'].split('/')[1]
+# TODO: This is a lazy fix for a common error condition. Better yet this searches for valid ones in case one isn't found
+iam_role_name = node['chef_classroom']['iam_instance_profile'].split('/')[1].gsub!('-', '_')
 
 template '/root/.aws/config' do
   source 'aws_config.erb'
