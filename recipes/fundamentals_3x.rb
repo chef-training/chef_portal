@@ -52,6 +52,7 @@ class_attributes_overrides = {
       class_name: node['chef_classroom']['class_name'],
       number_of_students: node['chef_classroom']['number_of_students'],
       ip_range: node['chef_classroom']['ip_range'],
+      region: node['chef_classroom']['region'],
       iam_instance_profile: node['chef_classroom']['iam_instance_profile']
     }
   }
