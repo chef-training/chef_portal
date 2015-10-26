@@ -19,9 +19,6 @@ git class_dir do
   notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
 end
 
-# This is a hack, this dir should be created in chef_classroom repo
-directory "#{class_dir}/roles"
-
 # Setup the web portal interface for fundamentals_3x
 include_recipe 'chef_portal::_fundamentals_3x_webapp'
 
