@@ -16,11 +16,11 @@ describe 'chef_portal::default' do
   end
 
   describe command('curl localhost') do
-    its(:stdout) { should match /List of student machines/ }
+    its(:stdout) { should match(/List of student machines/) }
   end
 
   describe file('/root/.aws/config') do
-    its(:content) { should match /aws_access_key_id/ }
-    its(:content) { should match /aws_secret_access_key_id/ }
+    its(:content) { should match(/aws_access_key_id/) }
+    its(:content) { should match(/aws_secret_access_key_id/) }
   end
 end

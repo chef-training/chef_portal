@@ -27,6 +27,5 @@ describe 'chef_portal::_fundamentals_3x_webapp' do
     it 'starts the portl site service'
     it 'loads the guacamole recipe'
     it 'replaces the guacamole user mappings'
-
   end
 end
