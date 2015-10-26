@@ -1,37 +1,3 @@
-# Chef Training Portal Cookbook
-
-This cookbook installs and configures a node to be a Chef Training Portal instance. It currently is expected to be consumed exclusively by [chef_classroom][classroom] on which it also currently depends (TODO: decouple)
-
-## Platform Support
-
-The following platforms have been tested with Test Kitchen:
-
-* centos-6.5
-
-(TODO: .kitchen.cloud.yml)
-
-## Cookbook Dependencies
-
-- chef-dk
-- sudo
-- chef_classroom
-- guacamole
-
-## Roadmap
-
-* Decouple from chef_classroom
-* Packerize the process for faster spin up
-* More testing
-* Replace bespoke functionality with existing cookbooks
-
-## License & Authors
-
-- Author: George Miranda (<gmiranda@chef.io>)
-- Author: Franklin Webber (<franklin@chef.io>)
-- Author: Seth Thomas (<sthomas@chef.io>)
-
-
-```text
 License:: MIT
 Copyright (c) 2015 Chef Software, Inc.
 
@@ -52,6 +18,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-```
-
-[classroom]: https://github.com/chef-training/chef_classroom
