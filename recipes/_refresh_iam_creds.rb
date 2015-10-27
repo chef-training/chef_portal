@@ -23,13 +23,16 @@ directory '/root/.aws' do
   mode '0700'
 end
 
+ruby_block 'set iam role name' do
+  block do
+    iam_role_name = node['chef_classroom']['iam_instance_profile'].split('/')[1].tr('-','_')
 
-iam_role_name = node['chef_classroom']['iam_instance_profile'].split('/')[1].tr('-','_')
-
-if node['ec2']['iam']['security-credentials'].keys.include?(iam_role_name)
-  iam_role_name = iam_role_name
-else
-  iam_role_name = node['ec2']['iam']['security-credentials'].keys.first
+    if node['ec2']['iam']['security-credentials'].keys.include?(iam_role_name)
+      node.run_state['iam_role_name'] = iam_role_name
+    else
+      node.run_state['iam_role_name'] = node['ec2']['iam']['security-credentials'].keys.first
+    end
+  end
 end
 
 template '/root/.aws/config' do
@@ -37,8 +40,8 @@ template '/root/.aws/config' do
   variables(
     lazy do
       {
-        :access_key => node['ec2']['iam']['security-credentials'][iam_role_name]['AccessKeyId'],
-        :secret_access_key => node['ec2']['iam']['security-credentials'][iam_role_name]['SecretAccessKey']
+        :access_key => node['ec2']['iam']['security-credentials'][node.run_state['iam_role_name']]['AccessKeyId'],
+        :secret_access_key => node['ec2']['iam']['security-credentials'][node.run_state['iam_role_name']]['SecretAccessKey']
       }
     end
   )
