@@ -1,0 +1,23 @@
+:class_name: CLASS_NAME
+:console_address: http://localhost:8080/guacamole
+:key: "/root/.ssh/CLASS_NAME-portal_key"
+:students:
+  - :name: student-1
+    :workstations:
+    - :name: workstation-1
+      :ipaddress: 192.168.0.2
+      :platform: centos
+    :nodes:
+    - :name: node-1
+      :ipaddress: 192.168.0.3
+      :platform: centos
+    - :name: node-2
+      :ipaddress: 192.168.0.4
+      :platform: centos
+    - :name: node-3
+      :ipaddress: 192.168.0.5
+      :platform: windows
+:chefserver:
+- :name: CLASS_NAME-chefserver
+  :ipaddress: 192.168.100.1
+  :platform: centos
