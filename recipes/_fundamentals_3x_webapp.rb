@@ -34,7 +34,6 @@ git portal_dir do
   repository 'git://github.com/chef-training/portal_site.git'
   revision 'master'
   action :sync
-  # notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
 end
 
 include_recipe 'chef_portal::_refresh_nodes'
