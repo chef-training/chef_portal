@@ -52,4 +52,4 @@ module PortalHelpers
 
 end
 
-Chef::Recipe.include PortalHelpers
+Chef::Resource::Template.include PortalHelpers
