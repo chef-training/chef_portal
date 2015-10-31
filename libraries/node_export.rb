@@ -12,7 +12,7 @@ module PortalHelpers
   end
 
   def workstations_for_student(student_tag)
-    search('node', "tags:workstation AND tags:#{student_tag}").map do |w_node|
+    search('class_machines', "tags:workstation AND tags:#{student_tag}").map do |w_node|
       convert_node_object_to_export_of_node(w_node)
     end
   end
@@ -27,7 +27,7 @@ module PortalHelpers
     student = node['chef_classroom']['student_prefix']
     count = node['chef_classroom']['number_of_students']
     1.upto(count).map do |i|
-      current_student_tag = student_tag(student,count)
+      current_student_tag = student_tag(student,i)
       { :name => "#{student}-#{i}",
         :workstations => workstations_for_student(current_student_tag),
         :nodes => nodes_for_student(current_student_tag) }
