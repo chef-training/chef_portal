@@ -35,7 +35,7 @@ module PortalHelpers
   end
 
   def find_chefserver
-    search('node', 'tags:chefserver').map do |s_node|
+    search('class_machines', 'tags:chefserver').map do |s_node|
       convert_node_object_to_export_of_node(s_node)
     end
   end
