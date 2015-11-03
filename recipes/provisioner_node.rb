@@ -3,7 +3,6 @@
 
 portal_user = node['chef_portal']['user']
 portal_pass = node['chef_portal']['password'].crypt('$6$' + rand(36**8).to_s(36))
-chefdk_ver = node['chef_portal']['chefdk']['version']
 
 # Setup the portal user
 user portal_user do
@@ -33,8 +32,8 @@ template '/etc/ssh/sshd_config' do
 end
 
 # install explicitly pinned ChefDK
-chef_dk 'install' do
-  version chefdk_ver
+chef_dk 'Install ChefDK' do
+  version node['chef_portal']['chefdk']['version']
   global_shell_init true
 end
 
@@ -58,24 +57,3 @@ end
 
 # get my AWS creds from IAM
 include_recipe 'chef_portal::_refresh_iam_creds'
-
-# disable selinux & iptables because complexity and webapp
-case node['platform']
-when 'redhat', 'centos', 'fedora'
-  template '/etc/selinux/config' do
-    source 'selinux-config.erb'
-    owner 'root'
-    group 'root'
-    mode '0644'
-  end
-
-  # enable permissive mode until next boot
-  file '/selinux/enforce' do
-    content '0'
-  end
-end
-
-service 'iptables' do
-  supports :status => true, :restart => true, :reload => true
-  action [:stop, :disable]
-end

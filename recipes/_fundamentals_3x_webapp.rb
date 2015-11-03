@@ -1,34 +1,22 @@
 # Cookbook Name:: chef_portal
 # Recipe:: _fundamentals_3x_webapp
 
-portal_dir = node['chef_portal']['root_dir']
-
-service 'iptables' do
-  action [:disable, :stop]
+httpd_service 'default' do
+  modules ['rewrite', 'proxy', 'proxy_http', 'authz_host']
+  action [:create, :start]
 end
 
-execute 'setsebool -P httpd_can_network_connect on'
-
-package 'httpd'
-
-file '/etc/httpd/conf.d/welcome.conf' do
-  action :delete
-  notifies :restart, 'service[httpd]'
-end
-
-# Write out a new HTTPD configuration that lets routes traffic to localhost:8080
-template '/etc/httpd/conf.d/portal_site.conf' do
+httpd_config 'default' do
   source 'portal_site.conf.erb'
-  notifies :restart, 'service[httpd]'
+  notifies :restart, 'httpd_service[default]'
+  action :create
 end
 
-service 'httpd' do
-  supports :status => true, :restart => true, :reload => true
-  action [:start, :enable]
-end
+node.default['selinux']['booleans'] = { 'httpd_can_network_connect' => 'on'}
+include_recipe 'selinux'
 
 # Deploy the website
-git portal_dir do
+git node['chef_portal']['root_dir'] do
   repository 'git://github.com/chef-training/portal_site.git'
   revision 'master'
   action :sync
@@ -36,21 +24,16 @@ end
 
 include_recipe 'chef_portal::_refresh_nodes'
 
-env_vars = {'GEM_HOME' => '/root/.chefdk/gem/ruby/2.1.0',
-            'GEM_PATH' => '/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
-            'GEM_ROOT' => '/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
-            'PATH' => "#{ENV['PATH']}:/opt/chefdk/embedded/bin"}
-
 execute 'bundle install' do
-  cwd portal_dir
-  environment env_vars
+  cwd node['chef_portal']['root_dir']
+  environment node['chef_portal']['chefdk']['env_vars']
 end
 
 include_recipe 'runit'
 
 runit_service "chef-portal" do
   default_logger true
-  env env_vars
+  env node['chef_portal']['chefdk']['env_vars']
 end
 
 # lazy create the guacamole user map and monkeypatch it
