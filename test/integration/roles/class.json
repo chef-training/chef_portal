@@ -1,0 +1,13 @@
+{
+   "name" : "class",
+   "default_attributes" : {
+      "chef_classroom" : {
+         "region" : "us-west-2",
+         "iam_instance_profile" : "arn:aws:iam::999999999999:instance-profile/classroom",
+         "number_of_students" : 1,
+         "student_prefix": "student",
+         "ip_range" : "0.0.0.0/0",
+         "class_name" : "chef-portal-test"
+      }
+   }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "student-1-workstation",
+  "tags": [ "workstation", "student-1", "chef-portal-test" ],
+  "ec2" : {
+    "public_ipv4" : "192.168.0.2"
+  },
+  "platform" : "amazon"
+}
