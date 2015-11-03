@@ -4,6 +4,13 @@ default['chef_portal']['root_dir'] = '/root/portal_site'
 
 default['chef_portal']['chefdk']['version'] = '0.8.1'
 
+default['chef_portal']['chefdk']['env_vars'].tap do |env_vars|
+  env_vars['GEM_HOME'] = '/root/.chefdk/gem/ruby/2.1.0'
+  env_vars['GEM_PATH'] = '/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0'
+  env_vars['GEM_ROOT'] = '/opt/chefdk/embedded/lib/ruby/gems/2.1.0'
+  env_vars['PATH'] = "#{ENV['PATH']}:/opt/chefdk/embedded/bin"
+end
+
 default['chef_portal']['chefdk']['gems'].tap do |gems|
   gems['chef-provisioning-aws'] = '1.5.1'
 end
