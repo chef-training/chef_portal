@@ -27,9 +27,7 @@ service 'httpd' do
   action [:start, :enable]
 end
 
-#
 # Deploy the website
-#
 git portal_dir do
   repository 'git://github.com/chef-training/portal_site.git'
   revision 'master'
@@ -38,21 +36,21 @@ end
 
 include_recipe 'chef_portal::_refresh_nodes'
 
+env_vars = {'GEM_HOME' => '/root/.chefdk/gem/ruby/2.1.0',
+            'GEM_PATH' => '/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
+            'GEM_ROOT' => '/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
+            'PATH' => "#{ENV['PATH']}:/opt/chefdk/embedded/bin"}
+
 execute 'bundle install' do
   cwd portal_dir
-  environment('GEM_HOME' => '/root/.chefdk/gem/ruby/2.1.0',
-              'GEM_PATH' => '/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
-              'GEM_ROOT' => '/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
-              'PATH' => "#{ENV['PATH']}:/opt/chefdk/embedded/bin")
+  environment env_vars
 end
 
-execute 'rackup -D -o 0.0.0.0 -p 8081 -P rack.pid' do
-  cwd portal_dir
-  environment('GEM_HOME' => '/root/.chefdk/gem/ruby/2.1.0',
-              'GEM_PATH' => '/root/.chefdk/gem/ruby/2.1.0:/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
-              'GEM_ROOT' => '/opt/chefdk/embedded/lib/ruby/gems/2.1.0',
-              'PATH' => "#{ENV['PATH']}:/opt/chefdk/embedded/bin")
-  not_if { ::File.exist?("#{portal_dir}/rack.pid") }
+include_recipe 'runit'
+
+runit_service "chef-portal" do
+  default_logger true
+  env env_vars
 end
 
 # lazy create the guacamole user map and monkeypatch it

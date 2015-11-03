@@ -1,0 +1,8 @@
+{
+  "name": "student-1-node-3",
+  "tags": [ "node-3", "student-1", "chef-portal-test" ],
+  "ec2" : {
+    "public_ipv4" : "192.168.0.5"
+  },
+  "platform" : "windows"
+}
