@@ -38,16 +38,16 @@ end
 
 # lazy create the guacamole user map and monkeypatch it
 # search returns nil during compilation
-# include_recipe 'guacamole'
-#
-# chef_gem 'chef-rewind'
-# # This FAILS with ChefSpec
-# require 'chef/rewind'
-#
-# rewind 'template[/etc/guacamole/user-mapping.xml]' do
-#   variables(
-#     lazy do
-#       { :usermap => guacamole_user_map }
-#     end
-#   )
-# end
+include_recipe 'guacamole'
+
+chef_gem 'chef-rewind'
+# This FAILS with ChefSpec
+require 'chef/rewind'
+
+rewind 'template[/etc/guacamole/user-mapping.xml]' do
+  variables(
+    lazy do
+      { :usermap => guacamole_user_map }
+    end
+  )
+end
