@@ -3,7 +3,7 @@
 
 include_recipe 'chef_portal::provisioner_node'
 
-class_dir = node['chef_portal']['chef_classroom']['dir']
+class_dir = "#{node['chef_portal']['home_dir']}/chef_classroom"
 
 # Clone the classroom git repo
 execute 'berks_vendor_cookbooks' do
@@ -13,8 +13,8 @@ execute 'berks_vendor_cookbooks' do
 end
 
 git class_dir do
-  repository node['chef_portal']['chef_classroom']['repo']
-  revision node['chef_portal']['chef_classroom']['master']
+  repository 'git://github.com/chef-training/chef_classroom.git'
+  revision 'master'
   action :sync
   notifies :run, 'execute[berks_vendor_cookbooks]', :immediately
 end

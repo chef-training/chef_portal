@@ -1,5 +1,5 @@
 #!/bin/bash
 eval "$(/opt/chefdk/bin/chef shell-init bash)"
-cd <%= node['chef_portal']['root_dir'] %>
+cd <%= node['chef_portal']['home_dir'] %>/portal_site
 exec 2>&1
 exec chpst -e /etc/sv/chef-portal/env rackup -o 0.0.0.0 -p 8081

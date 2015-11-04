@@ -17,9 +17,9 @@ end
 end
 
 # put my IAM credentials somewhere chef-provisioning can use them
-directory '/root/.aws' do
-  user 'root'
-  group 'root'
+directory "#{node['chef_portal']['home_dir']}/.aws" do
+  user node['chef_portal']['user']
+  group node['chef_portal']['group']
   mode '0700'
 end
 
@@ -35,7 +35,7 @@ ruby_block 'set iam role name' do
   end
 end
 
-template '/root/.aws/config' do
+template "#{node['chef_portal']['home_dir']}/.aws/config" do
   source 'aws_config.erb'
   variables(
     lazy do
@@ -45,7 +45,7 @@ template '/root/.aws/config' do
       }
     end
   )
-  user 'root'
-  group 'root'
+  user node['chef_portal']['user']
+  group node['chef_portal']['group']
   mode '0600'
 end

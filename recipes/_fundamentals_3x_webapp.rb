@@ -12,11 +12,8 @@ httpd_config 'default' do
   action :create
 end
 
-node.default['selinux']['booleans'] = { 'httpd_can_network_connect' => 'on'}
-include_recipe 'selinux'
-
 # Deploy the website
-git node['chef_portal']['root_dir'] do
+git "#{node['chef_portal']['home_dir']}/portal_site" do
   repository 'git://github.com/chef-training/portal_site.git'
   revision 'master'
   action :sync
@@ -25,7 +22,7 @@ end
 include_recipe 'chef_portal::_refresh_nodes'
 
 execute 'bundle install' do
-  cwd node['chef_portal']['root_dir']
+  cwd "#{node['chef_portal']['home_dir']}/portal_site"
   environment node['chef_portal']['chefdk']['env_vars']
 end
 
