@@ -1,9 +1,8 @@
 name 'chef_portal'
 maintainer 'George Miranda (<gmiranda@chef.io>)'
 maintainer_email 'gmiranda@chef.io'
-license 'mit'
+license 'MIT'
 description 'Installs/Configures chef_portal'
-long_description 'Installs/Configures chef_portal'
 version '0.1.2'
 
 supports 'centos'
