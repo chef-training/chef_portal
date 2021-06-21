@@ -1,4 +1,4 @@
-# Cookbook Name:: chef_portal
+# Cookbook:: chef_portal
 # Recipe:: _refesh_iam_creds
 
 template "#{node['chef_portal']['home_dir']}/portal_site/nodes.yml" do
@@ -6,7 +6,7 @@ template "#{node['chef_portal']['home_dir']}/portal_site/nodes.yml" do
   mode '0644'
   variables(
     lazy do
-      { :export => current_node_export }
+      { export: current_node_export }
     end
   )
 end

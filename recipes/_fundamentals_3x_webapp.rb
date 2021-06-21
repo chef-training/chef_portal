@@ -1,8 +1,8 @@
-# Cookbook Name:: chef_portal
+# Cookbook:: chef_portal
 # Recipe:: _fundamentals_3x_webapp
 
 httpd_service 'default' do
-  modules ['rewrite', 'proxy', 'proxy_http', 'authz_host']
+  modules %w(rewrite proxy proxy_http authz_host)
   action [:create, :start]
 end
 
@@ -28,7 +28,7 @@ end
 
 include_recipe 'runit'
 
-runit_service "chef-portal" do
+runit_service 'chef-portal' do
   default_logger true
   env node['chef_portal']['chefdk']['env_vars']
 end
@@ -36,15 +36,12 @@ end
 # lazy create the guacamole user map and monkeypatch it
 # search returns nil during compilation
 include_recipe 'guacamole'
-
-chef_gem 'chef-rewind'
 # This FAILS with ChefSpec
-require 'chef/rewind'
 
-rewind 'template[/etc/guacamole/user-mapping.xml]' do
+edit_resource 'template[/etc/guacamole/user-mapping.xml]' do
   variables(
     lazy do
-      { :usermap => guacamole_user_map }
+      { usermap: guacamole_user_map }
     end
   )
 end

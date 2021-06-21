@@ -1,10 +1,10 @@
 #
-# Cookbook Name:: chef_portal
+# Cookbook:: chef_portal
 # Spec:: default
 #
 # Author:: George Miranda (<gmiranda@chef.io>)
 # License:: MIT
-# Copyright (c) 2015 Chef Software, Inc.
+# Copyright:: (c) 2015 Chef Software, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
