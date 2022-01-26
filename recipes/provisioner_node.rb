@@ -1,4 +1,4 @@
-# Cookbook Name:: chef_portal
+# Cookbook:: chef_portal
 # Recipe:: provisioner_node
 
 portal_user = node['chef_portal']['user']
@@ -59,8 +59,7 @@ end
 include_recipe 'chef_portal::_refresh_iam_creds'
 
 # disable selinux & iptables because complexity and webapp
-case node['platform']
-when 'redhat', 'centos', 'fedora'
+if platform?('redhat', 'centos', 'fedora')
   template '/etc/selinux/config' do
     source 'selinux-config.erb'
     owner 'root'
@@ -74,7 +73,7 @@ when 'redhat', 'centos', 'fedora'
   end
 
   # your face is stupid SELinux
-  node.default['selinux']['booleans'] = { 'httpd_can_network_connect' => 'on'}
+  node.default['selinux']['booleans'] = { 'httpd_can_network_connect' => 'on' }
   node.default['selinux']['state'] = 'permissive'
   include_recipe 'selinux'
 end

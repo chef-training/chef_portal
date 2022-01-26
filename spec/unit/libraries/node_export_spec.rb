@@ -3,7 +3,6 @@ require './libraries/node_export'
 require 'yaml'
 
 describe PortalHelpers do
-
   class Test
     class Recipe
       include PortalHelpers
@@ -12,7 +11,7 @@ describe PortalHelpers do
         { 'chef_classroom' => {
             'class_name' => 'CLASS_NAME',
             'number_of_students' => 1,
-            'student_prefix' => 'student'
+            'student_prefix' => 'student',
           },
           'ec2' => { 'public_ipv4' => 'localhost' } }
       end
@@ -28,34 +27,32 @@ describe PortalHelpers do
   end
 
   describe '#current_node_export' do
-
     let(:expected_results) do
       target_nodes_file
     end
 
     let(:found_machines) do
       [ { name: 'student-1',
-        workstations: [ name: "workstation-1", ipaddress: "192.168.0.2", platform: "centos" ],
+        workstations: [ name: 'workstation-1', ipaddress: '192.168.0.2', platform: 'centos' ],
         nodes: [
-         { name: "node-1",
-           ipaddress: "192.168.0.3",
-           platform: "centos" },
-        { name: "node-2",
-          ipaddress: "192.168.0.4",
-          platform: "centos" },
-        { name: "node-3",
-          ipaddress: "192.168.0.5",
-          platform: "windows" }
-        ]
+         { name: 'node-1',
+           ipaddress: '192.168.0.3',
+           platform: 'centos' },
+        { name: 'node-2',
+          ipaddress: '192.168.0.4',
+          platform: 'centos' },
+        { name: 'node-3',
+          ipaddress: '192.168.0.5',
+          platform: 'windows' },
+        ],
       } ]
     end
 
     let(:found_chefserver) do
-      [ { name: "CLASS_NAME-chefserver",
-          ipaddress: "192.168.100.1",
-          platform: "centos" } ]
+      [ { name: 'CLASS_NAME-chefserver',
+          ipaddress: '192.168.100.1',
+          platform: 'centos' } ]
     end
-
 
     it 'generates the correct hash' do
       recipe = Test::Recipe.new
@@ -66,7 +63,6 @@ describe PortalHelpers do
   end
 
   describe '#find_chefserver' do
-
     let(:expected_results) do
       target_nodes_file[:chefserver]
     end
@@ -79,12 +75,10 @@ describe PortalHelpers do
 
     it 'generates the correct array of chef servers' do
       recipe = Test::Recipe.new
-      allow(recipe).to receive(:search).with('node','tags:chefserver').and_return(search_results)
+      allow(recipe).to receive(:search).with('node', 'tags:chefserver').and_return(search_results)
       expect(recipe.find_chefserver).to eq(expected_results)
     end
-
   end
-
 
   describe '#workstations_for_student' do
     let(:workstation_search_results) do
@@ -104,7 +98,6 @@ describe PortalHelpers do
       allow(recipe).to receive(:search).and_return(workstation_search_results)
       expect(recipe.workstations_for_student('student-1')).to eq(expected_results)
     end
-
   end
 
   describe '#nodes_for_students' do
@@ -123,7 +116,7 @@ describe PortalHelpers do
         'name' => 'node-3',
         'ec2' => { 'public_ipv4' => '192.168.0.5' },
         'platform' => 'windows',
-      }
+      },
     ]
     end
 
@@ -136,11 +129,9 @@ describe PortalHelpers do
       allow(recipe).to receive(:search).and_return(nodes_search_results)
       expect(recipe.nodes_for_student('student-1')).to eq(expected_results)
     end
-
   end
 
   describe '#find_machines' do
-
     let(:expected_results) do
       [ { name: 'student-1',
           workstations: [],
