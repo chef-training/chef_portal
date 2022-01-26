@@ -1,4 +1,4 @@
-# Cookbook Name:: chef_portal
+# Cookbook:: chef_portal
 # Recipe:: fundamentals_3x
 
 include_recipe 'chef_portal::provisioner_node'

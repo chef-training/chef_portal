@@ -1,4 +1,4 @@
-# Cookbook Name:: chef_portal
+# Cookbook:: chef_portal
 # Recipe:: _refesh_iam_creds
 
 ohai 'reload_ec2' do
@@ -25,13 +25,13 @@ end
 
 ruby_block 'set iam role name' do
   block do
-    iam_role_name = node['chef_classroom']['iam_instance_profile'].split('/')[1].tr('-','_')
+    iam_role_name = node['chef_classroom']['iam_instance_profile'].split('/')[1].tr('-', '_')
 
-    if node['ec2']['iam']['security-credentials'].keys.include?(iam_role_name)
-      node.run_state['iam_role_name'] = iam_role_name
-    else
-      node.run_state['iam_role_name'] = node['ec2']['iam']['security-credentials'].keys.first
-    end
+    node.run_state['iam_role_name'] = if node['ec2']['iam']['security-credentials'].keys.include?(iam_role_name)
+                                        iam_role_name
+                                      else
+                                        node['ec2']['iam']['security-credentials'].keys.first
+                                      end
   end
 end
 
@@ -40,8 +40,8 @@ template "#{node['chef_portal']['home_dir']}/.aws/config" do
   variables(
     lazy do
       {
-        :access_key => node['ec2']['iam']['security-credentials'][node.run_state['iam_role_name']]['AccessKeyId'],
-        :secret_access_key => node['ec2']['iam']['security-credentials'][node.run_state['iam_role_name']]['SecretAccessKey']
+        access_key: node['ec2']['iam']['security-credentials'][node.run_state['iam_role_name']]['AccessKeyId'],
+        secret_access_key: node['ec2']['iam']['security-credentials'][node.run_state['iam_role_name']]['SecretAccessKey'],
       }
     end
   )
